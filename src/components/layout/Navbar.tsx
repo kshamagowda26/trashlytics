@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Recycle, Menu, X, User, LayoutDashboard, BarChart3 } from "lucide-react";
+import { Recycle, Menu, X, User, LayoutDashboard, BarChart3, Layers, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/report", label: "Report Waste" },
+  { href: "/classifier", label: "Segregation", icon: Layers },
+  { href: "/smart-bin", label: "Smart Bin", icon: Trash2 },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
