@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Trash2, Leaf, Package, Cpu, MapPin, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNotifications } from "@/hooks/useNotifications";
+import { toast } from "@/hooks/use-toast";
 
 const smartBins = [
   {
@@ -49,6 +51,25 @@ const typeConfig = {
 };
 
 export default function SmartBin() {
+  const { addNotification } = useNotifications();
+
+  const handleAlert = (bin: typeof smartBins[0]) => {
+    const config = typeConfig[bin.type];
+    const notificationType = bin.fillLevel >= 90 ? "critical" : "warning";
+    
+    addNotification({
+      binId: bin.id,
+      location: bin.location,
+      type: notificationType,
+      message: `${config.label} bin at ${bin.fillLevel}% capacity - ${bin.fillLevel >= 90 ? "Immediate collection needed" : "Schedule collection soon"}`,
+    });
+
+    toast({
+      title: "Alert Sent",
+      description: `Notification sent for ${bin.location}`,
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -142,7 +163,12 @@ export default function SmartBin() {
                       <span>Last collected: {bin.lastCollected}</span>
                     </div>
                     {isUrgent && (
-                      <Button size="sm" variant="outline" className="gap-1 text-waste-hazardous border-waste-hazardous/50">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="gap-1 text-waste-hazardous border-waste-hazardous/50"
+                        onClick={() => handleAlert(bin)}
+                      >
                         <Bell className="h-3 w-3" />
                         Alert
                       </Button>
