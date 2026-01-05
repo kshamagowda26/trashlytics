@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Recycle, Menu, X, User, LayoutDashboard, BarChart3, Layers, Trash2 } from "lucide-react";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { cn } from "@/lib/utils";
 
 const navLinks = [
@@ -49,6 +50,7 @@ export function Navbar() {
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-3">
+            <NotificationBell />
             <Link to="/login">
               <Button variant="ghost" size="sm" className="gap-2">
                 <User className="h-4 w-4" />
