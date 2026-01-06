@@ -1,11 +1,12 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Recycle, Mail, Lock, User, ArrowRight, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -15,18 +16,55 @@ export default function Signup() {
   });
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const { signUp, user, loading } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (!loading && user) {
+      navigate("/", { replace: true });
+    }
+  }, [user, loading, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (formData.password.length < 6) {
+      toast({
+        title: "Password too short",
+        description: "Password must be at least 6 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
-    setTimeout(() => {
+    
+    const { error } = await signUp(formData.email, formData.password);
+    
+    if (error) {
       setIsLoading(false);
       toast({
-        title: "Welcome to Trashlytics! 🎉",
-        description: "Your account has been created. You earned 100 bonus Eco-Points!",
+        title: "Signup failed",
+        description: error.message,
+        variant: "destructive",
       });
-    }, 1500);
+      return;
+    }
+
+    toast({
+      title: "Welcome to Trashlytics! 🎉",
+      description: "Your account has been created. You earned 100 bonus Eco-Points!",
+    });
+    navigate("/", { replace: true });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted/30 leaf-pattern px-4 py-8">
@@ -105,7 +143,7 @@ export default function Signup() {
                 />
               </div>
               <p className="text-xs text-muted-foreground">
-                Must be at least 8 characters
+                Must be at least 6 characters
               </p>
             </div>
 
