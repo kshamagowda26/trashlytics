@@ -51,7 +51,7 @@ export function HeroSection() {
 
           {/* Feature cards */}
           <div className="grid md:grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <Link to="/ai-classifier">
+            <Link to="/classifier">
               <FeatureCard
                 icon={<Sparkles className="h-5 w-5" />}
                 title="AI Segregation"

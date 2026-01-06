@@ -207,7 +207,7 @@ export default function Dashboard() {
                     Report New Issue
                   </Button>
                 </Link>
-                <Link to="/ai-classifier" className="block">
+                <Link to="/classifier" className="block">
                   <Button variant="outline" className="w-full justify-start gap-3">
                     <TrendingUp className="h-4 w-4" />
                     AI Waste Classifier
