@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Recycle, Menu, X, User, LayoutDashboard, BarChart3, Layers, Trash2, LogOut } from "lucide-react";
+import { Recycle, Menu, X, User, LayoutDashboard, BarChart3, Layers, Trash2, LogOut, Trophy } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ const navLinks = [
   { href: "/classifier", label: "Segregation", icon: Layers },
   { href: "/report", label: "Report Waste" },
   { href: "/smart-bin", label: "Smart Bin", icon: Trash2 },
+  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
