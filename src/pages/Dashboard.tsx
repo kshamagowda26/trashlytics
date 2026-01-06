@@ -14,7 +14,11 @@ import {
   Plus,
   MapPin,
   Star,
-  Zap
+  Zap,
+  Gift,
+  Target,
+  Trophy,
+  Leaf
 } from "lucide-react";
 
 // Mock user data
@@ -40,6 +44,55 @@ const userData = {
     { id: 3, type: "Wet Waste", location: "Riverside Area", status: "in-progress", date: "2024-01-13" },
   ],
 };
+
+// Rewards data with clear explanations
+const rewards = [
+  {
+    id: 1,
+    title: "Plant a Tree",
+    description: "Your reports help fund tree planting in your city",
+    pointsRequired: 500,
+    icon: "🌳",
+    benefit: "1 tree planted in your name",
+    unlocked: true,
+  },
+  {
+    id: 2,
+    title: "Eco Certificate",
+    description: "Official recognition for your environmental efforts",
+    pointsRequired: 1000,
+    icon: "📜",
+    benefit: "Digital certificate to share",
+    unlocked: true,
+  },
+  {
+    id: 3,
+    title: "Community Champion",
+    description: "Get featured on our community leaderboard",
+    pointsRequired: 1500,
+    icon: "🏅",
+    benefit: "Profile badge + social recognition",
+    unlocked: false,
+  },
+  {
+    id: 4,
+    title: "Eco Store Discount",
+    description: "Redeem points for sustainable product discounts",
+    pointsRequired: 2000,
+    icon: "🛍️",
+    benefit: "20% off partner eco-stores",
+    unlocked: false,
+  },
+  {
+    id: 5,
+    title: "Zero Waste Kit",
+    description: "Earn a starter kit for sustainable living",
+    pointsRequired: 3000,
+    icon: "🎁",
+    benefit: "Reusable items delivered free",
+    unlocked: false,
+  },
+];
 
 export default function Dashboard() {
   return (
@@ -169,6 +222,112 @@ export default function Dashboard() {
               </CardContent>
             </Card>
           </div>
+
+          {/* Rewards Section */}
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="h-5 w-5 text-primary" />
+                Rewards & Motivation
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Earn eco-points by reporting waste and unlock amazing rewards!
+              </p>
+            </CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                {rewards.map((reward) => {
+                  const progress = Math.min((userData.ecoPoints / reward.pointsRequired) * 100, 100);
+                  return (
+                    <div
+                      key={reward.id}
+                      className={`relative p-4 rounded-xl border-2 transition-all ${
+                        reward.unlocked
+                          ? "bg-primary/5 border-primary/30 shadow-sm"
+                          : "bg-muted/30 border-border"
+                      }`}
+                    >
+                      {reward.unlocked && (
+                        <div className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <CheckCircle2 className="h-3 w-3" />
+                          Unlocked
+                        </div>
+                      )}
+                      <div className="text-3xl mb-2">{reward.icon}</div>
+                      <h4 className="font-semibold text-sm mb-1">{reward.title}</h4>
+                      <p className="text-xs text-muted-foreground mb-2">{reward.description}</p>
+                      
+                      <div className="bg-muted rounded-lg p-2 mb-3">
+                        <div className="flex items-center gap-1 text-xs font-medium text-primary">
+                          <Trophy className="h-3 w-3" />
+                          {reward.benefit}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">Progress</span>
+                          <span className="font-medium">{reward.pointsRequired} pts</span>
+                        </div>
+                        <Progress value={progress} className="h-2" />
+                        {!reward.unlocked && (
+                          <p className="text-xs text-muted-foreground">
+                            {reward.pointsRequired - userData.ecoPoints} pts to unlock
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* How to Earn Points */}
+              <div className="mt-6 p-4 rounded-xl bg-muted/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  How to Earn Eco-Points
+                </h4>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium">+50 pts</span>
+                      <p className="text-xs text-muted-foreground">Report waste</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <CheckCircle2 className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium">+100 pts</span>
+                      <p className="text-xs text-muted-foreground">Resolved report</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Leaf className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium">+25 pts</span>
+                      <p className="text-xs text-muted-foreground">Daily check-in</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Star className="h-4 w-4 text-primary" />
+                    </div>
+                    <div>
+                      <span className="font-medium">+200 pts</span>
+                      <p className="text-xs text-muted-foreground">Earn a badge</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Recent Reports */}
           <Card className="mt-6">
