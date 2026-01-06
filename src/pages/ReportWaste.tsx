@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Camera, 
   Upload, 
@@ -19,9 +22,10 @@ import {
   Leaf,
   Package,
   Cpu,
-  AlertTriangle
+  AlertTriangle,
+  Navigation
 } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 
 const wasteTypes = [
   { value: "wet", label: "Wet Waste", icon: Leaf, color: "waste-wet" },
@@ -38,9 +42,13 @@ const severityLevels = [
 ];
 
 export default function ReportWaste() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [aiResult, setAiResult] = useState<{ type: string; confidence: number } | null>(null);
+  const [isGettingLocation, setIsGettingLocation] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [aiResult, setAiResult] = useState<{ type: string; confidence: number; reasoning?: string } | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     wasteType: "",
@@ -48,42 +56,150 @@ export default function ReportWaste() {
     location: "",
     description: "",
   });
-  const { toast } = useToast();
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
-        setImagePreview(event.target?.result as string);
-        simulateAIAnalysis();
+      reader.onload = async (event) => {
+        const base64Image = event.target?.result as string;
+        setImagePreview(base64Image);
+        await analyzeWithAI(base64Image);
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const simulateAIAnalysis = () => {
+  const analyzeWithAI = async (imageBase64: string) => {
     setIsAnalyzing(true);
-    setTimeout(() => {
-      const types = ["wet", "dry", "ewaste", "hazardous"];
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      const confidence = Math.floor(Math.random() * 20) + 80;
-      setAiResult({ type: randomType, confidence });
-      setFormData(prev => ({ ...prev, wasteType: randomType }));
+    try {
+      const { data, error } = await supabase.functions.invoke("classify-waste", {
+        body: { imageBase64 },
+      });
+
+      if (error) throw error;
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
+
+      setAiResult({ 
+        type: data.type, 
+        confidence: data.confidence,
+        reasoning: data.reasoning
+      });
+      setFormData(prev => ({ ...prev, wasteType: data.type }));
+    } catch (error: any) {
+      console.error("AI analysis error:", error);
+      toast.error("AI classification failed. Please select waste type manually.");
+      // Allow user to continue without AI result
+      setAiResult(null);
+    } finally {
       setIsAnalyzing(false);
-    }, 2000);
+    }
   };
 
-  const handleSubmit = () => {
-    toast({
-      title: "Report Submitted Successfully! 🎉",
-      description: "You earned 50 Eco-Points for this report.",
-    });
-    // Reset form
-    setStep(1);
-    setImagePreview(null);
-    setAiResult(null);
-    setFormData({ wasteType: "", severity: "", location: "", description: "" });
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsGettingLocation(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // Try to get address from coordinates using reverse geocoding
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
+          );
+          const data = await response.json();
+          const address = data.display_name || `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          setFormData(prev => ({ ...prev, location: address }));
+          toast.success("Location detected successfully!");
+        } catch {
+          // Fallback to coordinates if reverse geocoding fails
+          setFormData(prev => ({ ...prev, location: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}` }));
+          toast.success("Location coordinates detected!");
+        }
+        setIsGettingLocation(false);
+      },
+      (error) => {
+        console.error("Location error:", error);
+        toast.error("Unable to get your location. Please enter it manually.");
+        setIsGettingLocation(false);
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
+
+  const handleSubmit = async () => {
+    if (!user) {
+      toast.error("Please log in to submit a report");
+      navigate("/login");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      // Create waste report
+      const { error: reportError } = await supabase
+        .from("waste_reports")
+        .insert({
+          user_id: user.id,
+          waste_type: formData.wasteType,
+          description: formData.description || `Severity: ${formData.severity}`,
+          location: formData.location || "Not specified",
+          points_earned: 50,
+          status: "pending",
+        });
+
+      if (reportError) throw reportError;
+
+      // Update user progress
+      const { data: currentProgress } = await supabase
+        .from("user_progress")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (currentProgress) {
+        const newPoints = currentProgress.eco_points + 50;
+        const newLevel = Math.floor(newPoints / 200) + 1;
+        
+        await supabase
+          .from("user_progress")
+          .update({
+            eco_points: newPoints,
+            level: newLevel,
+            total_reports: currentProgress.total_reports + 1,
+            pending_reports: currentProgress.pending_reports + 1,
+          })
+          .eq("user_id", user.id);
+      } else {
+        await supabase
+          .from("user_progress")
+          .insert({
+            user_id: user.id,
+            eco_points: 50,
+            level: 1,
+            total_reports: 1,
+            pending_reports: 1,
+          });
+      }
+
+      toast.success("Report submitted successfully! +50 Eco-Points earned!");
+      setStep(1);
+      setImagePreview(null);
+      setAiResult(null);
+      setFormData({ wasteType: "", severity: "", location: "", description: "" });
+    } catch (error: any) {
+      console.error("Submit error:", error);
+      toast.error("Failed to submit report. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -173,7 +289,7 @@ export default function ReportWaste() {
                   </div>
                 )}
 
-                {aiResult && (
+                {(aiResult || (!isAnalyzing && imagePreview)) && (
                   <Button variant="eco" className="w-full mt-6" onClick={() => setStep(2)}>
                     Continue to Details
                   </Button>
@@ -248,9 +364,24 @@ export default function ReportWaste() {
                       onChange={(e) => setFormData(prev => ({ ...prev, location: e.target.value }))}
                     />
                   </div>
-                  <Button variant="ghost" size="sm" className="gap-2 text-primary">
-                    <MapPin className="h-4 w-4" />
-                    Use my current location
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="gap-2 text-primary"
+                    onClick={handleGetCurrentLocation}
+                    disabled={isGettingLocation}
+                  >
+                    {isGettingLocation ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Detecting location...
+                      </>
+                    ) : (
+                      <>
+                        <Navigation className="h-4 w-4" />
+                        Use my current location
+                      </>
+                    )}
                   </Button>
                 </div>
 
@@ -331,8 +462,20 @@ export default function ReportWaste() {
                   <Button variant="outline" onClick={() => setStep(2)} className="flex-1">
                     Edit Report
                   </Button>
-                  <Button variant="eco" onClick={handleSubmit} className="flex-1">
-                    Submit Report
+                  <Button 
+                    variant="eco" 
+                    onClick={handleSubmit} 
+                    className="flex-1"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        Submitting...
+                      </>
+                    ) : (
+                      "Submit Report"
+                    )}
                   </Button>
                 </div>
               </CardContent>
