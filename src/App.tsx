@@ -11,7 +11,6 @@ import ReportWaste from "./pages/ReportWaste";
 import Analytics from "./pages/Analytics";
 import AIClassifier from "./pages/AIClassifier";
 import SmartBin from "./pages/SmartBin";
-import Leaderboard from "./pages/Leaderboard";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import NotFound from "./pages/NotFound";
@@ -33,7 +32,6 @@ const App = () => (
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/classifier" element={<AIClassifier />} />
               <Route path="/smart-bin" element={<SmartBin />} />
-              <Route path="/dashboard/leaderboard" element={<Leaderboard />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

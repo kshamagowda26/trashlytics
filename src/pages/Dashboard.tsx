@@ -18,8 +18,46 @@ import {
   Gift,
   Target,
   Trophy,
-  Leaf
+  Leaf,
+  Flame,
+  Medal,
+  Crown
 } from "lucide-react";
+
+// Leaderboard data
+const leaderboardData = [
+  { rank: 1, name: "Sarah Green", points: 12450, streak: 45, avatar: "🌱", badge: "Eco Champion", trend: "+320" },
+  { rank: 2, name: "Raj Patel", points: 11200, streak: 38, avatar: "🌿", badge: "Waste Warrior", trend: "+280" },
+  { rank: 3, name: "Emma Wilson", points: 10850, streak: 32, avatar: "🍃", badge: "Planet Saver", trend: "+195" },
+  { rank: 4, name: "Michael Chen", points: 9600, streak: 28, avatar: "♻️", badge: "Green Hero", trend: "+150" },
+  { rank: 5, name: "Priya Sharma", points: 8900, streak: 25, avatar: "🌍", badge: "Earth Guardian", trend: "+120" },
+];
+
+const getRankIcon = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return <Crown className="h-5 w-5 text-yellow-500" />;
+    case 2:
+      return <Medal className="h-5 w-5 text-gray-400" />;
+    case 3:
+      return <Medal className="h-5 w-5 text-amber-600" />;
+    default:
+      return <span className="text-sm font-bold text-muted-foreground">#{rank}</span>;
+  }
+};
+
+const getRankStyle = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return "bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border-yellow-500/50";
+    case 2:
+      return "bg-gradient-to-r from-gray-300/20 to-gray-400/20 border-gray-400/50";
+    case 3:
+      return "bg-gradient-to-r from-amber-600/20 to-orange-600/20 border-amber-600/50";
+    default:
+      return "bg-card border-border";
+  }
+};
 
 // Mock user data
 const userData = {
@@ -329,49 +367,101 @@ export default function Dashboard() {
             </CardContent>
           </Card>
 
-          {/* Recent Reports */}
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Recent Reports</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {userData.recentReports.map((report) => (
-                  <div
-                    key={report.id}
-                    className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="eco-gradient p-2 rounded-lg">
-                        <FileText className="h-4 w-4 text-primary-foreground" />
+          {/* Recent Reports & Leaderboard Grid */}
+          <div className="grid lg:grid-cols-2 gap-6 mt-6">
+            {/* Recent Reports */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Recent Reports</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {userData.recentReports.map((report) => (
+                    <div
+                      key={report.id}
+                      className="flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="eco-gradient p-2 rounded-lg">
+                          <FileText className="h-4 w-4 text-primary-foreground" />
+                        </div>
+                        <div>
+                          <h4 className="font-medium text-sm">{report.type}</h4>
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {report.location}
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-medium">{report.type}</h4>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          {report.location}
-                        </p>
+                      <div className="text-right">
+                        <Badge
+                          variant={
+                            report.status === "resolved"
+                              ? "default"
+                              : report.status === "pending"
+                              ? "outline"
+                              : "secondary"
+                          }
+                          className="text-xs"
+                        >
+                          {report.status}
+                        </Badge>
+                        <p className="text-xs text-muted-foreground mt-1">{report.date}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <Badge
-                        variant={
-                          report.status === "resolved"
-                            ? "default"
-                            : report.status === "pending"
-                            ? "outline"
-                            : "secondary"
-                        }
-                      >
-                        {report.status}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground mt-1">{report.date}</p>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Leaderboard */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-primary" />
+                  Eco Leaderboard
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {leaderboardData.map((user) => (
+                    <div
+                      key={user.rank}
+                      className={`flex items-center gap-3 p-3 rounded-xl border transition-all hover:scale-[1.01] ${getRankStyle(user.rank)}`}
+                    >
+                      {/* Rank */}
+                      <div className="w-8 flex justify-center">
+                        {getRankIcon(user.rank)}
+                      </div>
+                      
+                      {/* Avatar & Name */}
+                      <div className="flex items-center gap-2 flex-1 min-w-0">
+                        <div className="text-2xl">{user.avatar}</div>
+                        <div className="min-w-0">
+                          <h3 className="font-semibold text-sm text-foreground truncate">{user.name}</h3>
+                          <Badge variant="secondary" className="text-xs">
+                            {user.badge}
+                          </Badge>
+                        </div>
+                      </div>
+                      
+                      {/* Streak */}
+                      <div className="hidden sm:flex items-center gap-1 text-orange-500">
+                        <Flame className="h-4 w-4" />
+                        <span className="font-semibold text-sm">{user.streak}</span>
+                      </div>
+                      
+                      {/* Points */}
+                      <div className="text-right">
+                        <div className="text-sm font-bold text-primary">{user.points.toLocaleString()}</div>
+                        <span className="text-xs text-green-500">{user.trend}</span>
+                      </div>
                     </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </main>
       <Footer />
