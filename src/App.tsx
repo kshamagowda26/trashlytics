@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { NotificationsProvider } from "@/hooks/useNotifications";
 import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
-import Dashboard from "./pages/Dashboard";
+import Progress from "./pages/Progress";
 import ReportWaste from "./pages/ReportWaste";
 import Analytics from "./pages/Analytics";
 import AIClassifier from "./pages/AIClassifier";
@@ -27,7 +27,7 @@ const App = () => (
             <Sonner />
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/progress" element={<Progress />} />
               <Route path="/report" element={<ReportWaste />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/classifier" element={<AIClassifier />} />
