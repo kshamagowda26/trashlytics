@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Navbar } from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -6,8 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { 
+import {
   Upload, 
   Sparkles, 
   Loader2,
@@ -28,10 +30,13 @@ const wasteTypes = [
 ];
 
 export default function AIClassifier() {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [mode, setMode] = useState<"image" | "text">("image");
   const [textInput, setTextInput] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
   const [result, setResult] = useState<{ type: string; confidence: number; suggestions: string[]; reasoning?: string } | null>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +76,85 @@ export default function AIClassifier() {
       toast.error("Failed to classify waste. Please try again.");
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const handleReportWaste = async () => {
+    if (!result) return;
+    
+    if (!user) {
+      toast.error("Please log in to report waste");
+      navigate("/login");
+      return;
+    }
+
+    setIsReporting(true);
+    
+    try {
+      // Create waste report
+      const { error: reportError } = await supabase
+        .from("waste_reports")
+        .insert({
+          user_id: user.id,
+          waste_type: result.type,
+          description: mode === "text" ? textInput : `AI classified from image (${result.confidence}% confidence)`,
+          location: "AI Classifier",
+          points_earned: 50,
+          status: "pending",
+        });
+
+      if (reportError) throw reportError;
+
+      // Update user progress
+      const { data: currentProgress, error: progressFetchError } = await supabase
+        .from("user_progress")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+
+      if (progressFetchError && progressFetchError.code !== "PGRST116") {
+        throw progressFetchError;
+      }
+
+      if (currentProgress) {
+        const newPoints = currentProgress.eco_points + 50;
+        const newLevel = Math.floor(newPoints / 200) + 1;
+        
+        const { error: updateError } = await supabase
+          .from("user_progress")
+          .update({
+            eco_points: newPoints,
+            level: newLevel,
+            total_reports: currentProgress.total_reports + 1,
+            pending_reports: currentProgress.pending_reports + 1,
+          })
+          .eq("user_id", user.id);
+
+        if (updateError) throw updateError;
+      } else {
+        // Initialize progress if it doesn't exist
+        const { error: insertError } = await supabase
+          .from("user_progress")
+          .insert({
+            user_id: user.id,
+            eco_points: 50,
+            level: 1,
+            total_reports: 1,
+            pending_reports: 1,
+          });
+
+        if (insertError) throw insertError;
+      }
+
+      toast.success("Waste reported successfully! +50 Eco Points earned!");
+      setResult(null);
+      setTextInput("");
+      setImagePreview(null);
+    } catch (error: any) {
+      console.error("Report error:", error);
+      toast.error("Failed to report waste. Please try again.");
+    } finally {
+      setIsReporting(false);
     }
   };
 
@@ -262,8 +346,20 @@ export default function AIClassifier() {
 
                     {/* Action buttons */}
                     <div className="flex gap-3 mt-6">
-                      <Button variant="eco" className="flex-1">
-                        Report This Waste
+                      <Button 
+                        variant="eco" 
+                        className="flex-1"
+                        onClick={handleReportWaste}
+                        disabled={isReporting}
+                      >
+                        {isReporting ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                            Reporting...
+                          </>
+                        ) : (
+                          "Report This Waste"
+                        )}
                       </Button>
                       <Button variant="outline" className="flex-1" onClick={() => setResult(null)}>
                         Classify Another
