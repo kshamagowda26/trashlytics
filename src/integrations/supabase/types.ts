@@ -14,7 +14,158 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      rewards: {
+        Row: {
+          created_at: string
+          description: string
+          icon: string
+          id: string
+          name: string
+          points_required: number
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          icon: string
+          id?: string
+          name: string
+          points_required: number
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          icon?: string
+          id?: string
+          name?: string
+          points_required?: number
+        }
+        Relationships: []
+      }
+      user_badges: {
+        Row: {
+          badge_icon: string
+          badge_name: string
+          earned_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          badge_icon: string
+          badge_name: string
+          earned_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          badge_icon?: string
+          badge_name?: string
+          earned_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_progress: {
+        Row: {
+          created_at: string
+          eco_points: number
+          id: string
+          level: number
+          pending_reports: number
+          resolved_reports: number
+          total_reports: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          eco_points?: number
+          id?: string
+          level?: number
+          pending_reports?: number
+          resolved_reports?: number
+          total_reports?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          eco_points?: number
+          id?: string
+          level?: number
+          pending_reports?: number
+          resolved_reports?: number
+          total_reports?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_rewards: {
+        Row: {
+          claimed_at: string
+          id: string
+          reward_id: string
+          user_id: string
+        }
+        Insert: {
+          claimed_at?: string
+          id?: string
+          reward_id: string
+          user_id: string
+        }
+        Update: {
+          claimed_at?: string
+          id?: string
+          reward_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_rewards_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      waste_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          location: string
+          points_earned: number
+          status: string
+          updated_at: string
+          user_id: string
+          waste_type: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location: string
+          points_earned?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          waste_type: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          location?: string
+          points_earned?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          waste_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
