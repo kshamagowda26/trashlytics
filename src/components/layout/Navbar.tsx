@@ -12,7 +12,7 @@ const navLinks = [
   { href: "/classifier", label: "Segregation", icon: Layers },
   { href: "/report", label: "Report Waste" },
   { href: "/smart-bin", label: "Smart Bin", icon: Trash2 },
-  { href: "/leaderboard", label: "Leaderboard", icon: Trophy },
+  { href: "/dashboard/leaderboard", label: "Leaderboard", icon: Trophy },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
