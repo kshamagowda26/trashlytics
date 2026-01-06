@@ -207,7 +207,7 @@ export default function Dashboard() {
                     Report New Issue
                   </Button>
                 </Link>
-                <Link to="/classify" className="block">
+                <Link to="/ai-classifier" className="block">
                   <Button variant="outline" className="w-full justify-start gap-3">
                     <TrendingUp className="h-4 w-4" />
                     AI Waste Classifier
@@ -224,7 +224,7 @@ export default function Dashboard() {
           </div>
 
           {/* Rewards Section */}
-          <Card className="mt-6">
+          <Card className="mt-6" id="rewards">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Gift className="h-5 w-5 text-primary" />
