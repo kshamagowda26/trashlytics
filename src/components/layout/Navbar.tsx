@@ -8,11 +8,11 @@ import { cn } from "@/lib/utils";
 
 const navLinks = [
   { href: "/", label: "Home" },
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/classifier", label: "Segregation", icon: Layers },
   { href: "/report", label: "Report Waste" },
   { href: "/smart-bin", label: "Smart Bin", icon: Trash2 },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/progress", label: "Progress", icon: LayoutDashboard },
 ];
 
 
