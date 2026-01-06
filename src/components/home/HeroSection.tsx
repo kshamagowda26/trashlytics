@@ -84,7 +84,7 @@ export function HeroSection() {
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <div className="glass-card p-4 rounded-xl hover:scale-105 transition-transform cursor-default">
+    <div className="glass-card p-4 rounded-xl hover:scale-105 transition-transform cursor-pointer hover:shadow-lg">
       <div className="flex items-center gap-3">
         <div className="eco-gradient p-2 rounded-lg text-primary-foreground">
           {icon}
