@@ -51,21 +51,27 @@ export function HeroSection() {
 
           {/* Feature cards */}
           <div className="grid md:grid-cols-3 gap-4 md:gap-6 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: "0.4s" }}>
-            <FeatureCard
-              icon={<Sparkles className="h-5 w-5" />}
-              title="AI Segregation"
-              description="Smart waste classification using AI"
-            />
-            <FeatureCard
-              icon={<MapPin className="h-5 w-5" />}
-              title="Location Tracking"
-              description="Report & track waste issues on map"
-            />
-            <FeatureCard
-              icon={<Leaf className="h-5 w-5" />}
-              title="Earn Rewards"
-              description="Get eco-points for every action"
-            />
+            <Link to="/ai-classifier">
+              <FeatureCard
+                icon={<Sparkles className="h-5 w-5" />}
+                title="AI Segregation"
+                description="Smart waste classification using AI"
+              />
+            </Link>
+            <Link to="/analytics">
+              <FeatureCard
+                icon={<MapPin className="h-5 w-5" />}
+                title="Location Tracking"
+                description="Report & track waste issues on map"
+              />
+            </Link>
+            <Link to="/dashboard#rewards">
+              <FeatureCard
+                icon={<Leaf className="h-5 w-5" />}
+                title="Earn Rewards"
+                description="Get eco-points for every action"
+              />
+            </Link>
           </div>
         </div>
       </div>
