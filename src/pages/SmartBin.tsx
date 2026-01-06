@@ -134,48 +134,92 @@ export default function SmartBin() {
           <div className="max-w-4xl mx-auto">
             <Card className="overflow-hidden border-2 border-primary/20">
               <div className="grid md:grid-cols-2">
-                {/* Bin Visual */}
-                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-8 flex items-center justify-center">
+                {/* Bin Visual - Modern Smart Bin */}
+                <div className="bg-gradient-to-br from-primary/10 to-secondary/10 p-8 flex items-center justify-center min-h-[400px]">
                   <div className="relative">
-                    {/* Bin Body */}
-                    <div className="w-48 h-64 bg-gradient-to-b from-muted to-muted/80 rounded-t-xl rounded-b-3xl border-4 border-muted-foreground/20 relative overflow-hidden shadow-2xl">
-                      {/* Fill Level Visualization */}
-                      <div 
-                        className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-primary to-primary/60 transition-all duration-500 rounded-b-2xl"
-                        style={{ height: `${simulatorFill[0]}%` }}
-                      />
+                    {/* Modern Bin Container */}
+                    <div className="relative">
+                      {/* Solar Panel Top */}
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-40 h-3 bg-gradient-to-b from-indigo-400 to-indigo-600 rounded-t-lg shadow-lg z-10">
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="w-32 h-1 bg-indigo-300/50 rounded" />
+                        </div>
+                        <Sun className="h-3 w-3 text-yellow-300 absolute -top-1 left-1/2 -translate-x-1/2" />
+                      </div>
                       
-                      {/* Fill Level Text */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="text-center z-10">
-                          <span className="text-4xl font-bold text-foreground">{simulatorFill[0]}%</span>
-                          <p className="text-sm text-muted-foreground">Fill Level</p>
+                      {/* Main Bin Body */}
+                      <div className="w-44 h-56 relative">
+                        {/* Lid */}
+                        <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-slate-700 to-slate-800 rounded-t-2xl border-2 border-slate-600 z-20">
+                          {/* Sensor Strip */}
+                          <div className="absolute top-3 left-1/2 -translate-x-1/2 w-20 h-2 bg-slate-900 rounded-full flex items-center justify-center gap-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" style={{ animationDelay: '0.5s' }} />
+                            <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" style={{ animationDelay: '1s' }} />
+                          </div>
+                          {/* Camera */}
+                          <div className="absolute top-3 right-3 w-4 h-4 bg-slate-900 rounded-full flex items-center justify-center">
+                            <Eye className="h-2.5 w-2.5 text-primary" />
+                          </div>
+                        </div>
+                        
+                        {/* Body */}
+                        <div className="absolute top-10 left-1 right-1 bottom-0 bg-gradient-to-b from-slate-600 via-slate-700 to-slate-800 rounded-b-3xl border-2 border-slate-500 overflow-hidden shadow-2xl">
+                          {/* Fill Level */}
+                          <div 
+                            className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-emerald-500 via-emerald-400 to-emerald-300/80 transition-all duration-500"
+                            style={{ height: `${simulatorFill[0]}%` }}
+                          >
+                            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.1)_50%,transparent_75%)] bg-[length:20px_20px]" />
+                          </div>
+                          
+                          {/* Display Screen */}
+                          <div className="absolute top-4 left-1/2 -translate-x-1/2 w-24 h-16 bg-slate-900 rounded-lg border border-slate-600 flex flex-col items-center justify-center shadow-inner">
+                            <span className="text-2xl font-bold text-emerald-400">{simulatorFill[0]}%</span>
+                            <span className="text-[10px] text-slate-400 uppercase tracking-wider">Fill Level</span>
+                          </div>
+                          
+                          {/* Side Accent Lines */}
+                          <div className="absolute left-2 top-24 bottom-4 w-1 bg-primary/30 rounded-full" />
+                          <div className="absolute right-2 top-24 bottom-4 w-1 bg-primary/30 rounded-full" />
+                        </div>
+                        
+                        {/* Base */}
+                        <div className="absolute -bottom-2 left-0 right-0 h-4 bg-slate-900 rounded-b-xl" />
+                      </div>
+                    </div>
+                    
+                    {/* Status Indicators - Floating Cards */}
+                    <div className="absolute -right-20 top-8 space-y-2">
+                      <div className="flex items-center gap-2 bg-background/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-border/50">
+                        <Battery className="h-4 w-4 text-green-500" />
+                        <div className="text-left">
+                          <span className="text-xs font-bold block">98%</span>
+                          <span className="text-[10px] text-muted-foreground">Battery</span>
                         </div>
                       </div>
-                      
-                      {/* Sensor Indicators */}
-                      <div className="absolute top-2 left-2">
-                        <div className="w-3 h-3 rounded-full bg-green-500 animate-pulse" />
-                      </div>
-                      <div className="absolute top-2 right-2">
-                        <Eye className="h-4 w-4 text-primary" />
-                      </div>
-                    </div>
-                    
-                    {/* Solar Panel */}
-                    <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-32 h-6 bg-gradient-to-r from-blue-900 to-blue-700 rounded-t-lg border-2 border-blue-500 flex items-center justify-center">
-                      <Sun className="h-4 w-4 text-yellow-400" />
-                    </div>
-                    
-                    {/* Status Indicators */}
-                    <div className="absolute -right-16 top-1/4 space-y-3">
-                      <div className="flex items-center gap-2 bg-background/80 backdrop-blur px-3 py-1.5 rounded-full shadow-lg">
-                        <Battery className="h-4 w-4 text-green-500" />
-                        <span className="text-xs font-medium">98%</span>
-                      </div>
-                      <div className="flex items-center gap-2 bg-background/80 backdrop-blur px-3 py-1.5 rounded-full shadow-lg">
+                      <div className="flex items-center gap-2 bg-background/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-border/50">
                         <Wifi className={`h-4 w-4 ${isConnected ? 'text-green-500' : 'text-red-500'}`} />
-                        <span className="text-xs font-medium">{isConnected ? 'Online' : 'Offline'}</span>
+                        <div className="text-left">
+                          <span className="text-xs font-bold block">{isConnected ? 'Online' : 'Offline'}</span>
+                          <span className="text-[10px] text-muted-foreground">Status</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 bg-background/90 backdrop-blur-md px-3 py-2 rounded-xl shadow-lg border border-border/50">
+                        <Radio className="h-4 w-4 text-blue-500" />
+                        <div className="text-left">
+                          <span className="text-xs font-bold block">LoRaWAN</span>
+                          <span className="text-[10px] text-muted-foreground">Network</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Left side label */}
+                    <div className="absolute -left-16 top-1/2 -translate-y-1/2">
+                      <div className="bg-primary/10 backdrop-blur-md px-3 py-2 rounded-xl border border-primary/20">
+                        <Trash2 className="h-5 w-5 text-primary mx-auto mb-1" />
+                        <span className="text-[10px] text-muted-foreground block text-center">Smart</span>
+                        <span className="text-[10px] text-muted-foreground block text-center">Bin v2</span>
                       </div>
                     </div>
                   </div>
@@ -399,30 +443,6 @@ export default function SmartBin() {
           </div>
         </section>
 
-        {/* CTA Section */}
-        <section className="container mx-auto px-4">
-          <Card className="bg-gradient-to-r from-primary to-secondary text-primary-foreground overflow-hidden">
-            <CardContent className="p-12 text-center relative">
-              <div className="absolute top-0 right-0 opacity-10">
-                <Sparkles className="h-40 w-40" />
-              </div>
-              <h2 className="text-3xl font-bold mb-4">Interested in Our Pilot Program?</h2>
-              <p className="text-primary-foreground/80 mb-8 max-w-2xl mx-auto">
-                We're looking for cities and organizations to pilot our smart bin technology. 
-                Join us in revolutionizing waste management.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" variant="secondary" className="gap-2">
-                  <Zap className="h-5 w-5" />
-                  Join Pilot Program
-                </Button>
-                <Button size="lg" variant="outline" className="bg-transparent border-primary-foreground/30 text-primary-foreground hover:bg-primary-foreground/10">
-                  Learn More
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
       </main>
 
       <Footer />
