@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { 
   Upload, 
   Sparkles, 
@@ -30,7 +32,7 @@ export default function AIClassifier() {
   const [textInput, setTextInput] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [result, setResult] = useState<{ type: string; confidence: number; suggestions: string[] } | null>(null);
+  const [result, setResult] = useState<{ type: string; confidence: number; suggestions: string[]; reasoning?: string } | null>(null);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -44,23 +46,32 @@ export default function AIClassifier() {
     }
   };
 
-  const analyzeWaste = () => {
+  const analyzeWaste = async () => {
     setIsAnalyzing(true);
     setResult(null);
     
-    setTimeout(() => {
-      const types = ["wet", "dry", "ewaste", "hazardous"];
-      const randomType = types[Math.floor(Math.random() * types.length)];
-      const confidence = Math.floor(Math.random() * 15) + 85;
-      const wasteInfo = wasteTypes.find(w => w.value === randomType);
-      
-      setResult({
-        type: randomType,
-        confidence,
-        suggestions: wasteInfo?.tips || [],
+    try {
+      const { data, error } = await supabase.functions.invoke("classify-waste", {
+        body: {
+          description: mode === "text" ? textInput : undefined,
+          imageBase64: mode === "image" ? imagePreview : undefined,
+        },
       });
+
+      if (error) throw error;
+
+      setResult({
+        type: data.type,
+        confidence: data.confidence,
+        suggestions: data.suggestions,
+        reasoning: data.reasoning,
+      });
+    } catch (error: any) {
+      console.error("Classification error:", error);
+      toast.error("Failed to classify waste. Please try again.");
+    } finally {
       setIsAnalyzing(false);
-    }, 2500);
+    }
   };
 
   const currentWaste = result ? wasteTypes.find(w => w.value === result.type) : null;

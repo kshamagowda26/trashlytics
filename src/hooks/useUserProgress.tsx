@@ -60,16 +60,38 @@ export function useUserProgress() {
     }
 
     try {
-      // Fetch user progress
-      const { data: progressData, error: progressError } = await supabase
+      // Fetch user progress - create if doesn't exist
+      let { data: progressData, error: progressError } = await supabase
         .from("user_progress")
         .select("*")
         .eq("user_id", user.id)
         .single();
 
-      if (progressError && progressError.code !== "PGRST116") {
+      if (progressError && progressError.code === "PGRST116") {
+        // No progress found, create initial progress
+        const { data: newProgress, error: insertError } = await supabase
+          .from("user_progress")
+          .insert({
+            user_id: user.id,
+            eco_points: 0,
+            level: 1,
+            total_reports: 0,
+            resolved_reports: 0,
+            pending_reports: 0,
+          })
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error("Error creating progress:", insertError);
+        } else {
+          progressData = newProgress;
+        }
+      } else if (progressError) {
         console.error("Error fetching progress:", progressError);
-      } else if (progressData) {
+      }
+
+      if (progressData) {
         setProgress(progressData);
       }
 
