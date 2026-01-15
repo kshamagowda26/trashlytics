@@ -213,22 +213,22 @@ export type Database = {
       }
     }
     Views: {
-      leaderboard: {
-        Row: {
-          avatar_url: string | null
-          eco_points: number | null
-          full_name: string | null
-          level: number | null
-          rank: number | null
-          resolved_reports: number | null
-          total_reports: number | null
-          user_id: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          eco_points: number
+          full_name: string
+          level: number
+          rank: number
+          resolved_reports: number
+          total_reports: number
+          user_id: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
