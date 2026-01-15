@@ -23,7 +23,8 @@ import {
   Package,
   Cpu,
   AlertTriangle,
-  Navigation
+  Navigation,
+  Image as ImageIcon
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -48,8 +49,10 @@ export default function ReportWaste() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [aiResult, setAiResult] = useState<{ type: string; confidence: number; reasoning?: string } | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [formData, setFormData] = useState({
     wasteType: "",
     severity: "",
@@ -60,6 +63,7 @@ export default function ReportWaste() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onload = async (event) => {
         const base64Image = event.target?.result as string;
@@ -67,6 +71,34 @@ export default function ReportWaste() {
         await analyzeWithAI(base64Image);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImageToStorage = async (file: File, type: 'before' | 'after' = 'before'): Promise<string | null> => {
+    if (!user) return null;
+    
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}_${type}.${fileExt}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('waste-images')
+        .upload(fileName, file);
+      
+      if (uploadError) throw uploadError;
+      
+      const { data } = supabase.storage
+        .from('waste-images')
+        .getPublicUrl(fileName);
+      
+      return data.publicUrl;
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast.error("Failed to upload image");
+      return null;
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -92,7 +124,6 @@ export default function ReportWaste() {
     } catch (error: any) {
       console.error("AI analysis error:", error);
       toast.error("AI classification failed. Please select waste type manually.");
-      // Allow user to continue without AI result
       setAiResult(null);
     } finally {
       setIsAnalyzing(false);
@@ -110,7 +141,6 @@ export default function ReportWaste() {
       async (position) => {
         const { latitude, longitude } = position.coords;
         try {
-          // Try to get address from coordinates using reverse geocoding
           const response = await fetch(
             `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
           );
@@ -119,7 +149,6 @@ export default function ReportWaste() {
           setFormData(prev => ({ ...prev, location: address }));
           toast.success("Location detected successfully!");
         } catch {
-          // Fallback to coordinates if reverse geocoding fails
           setFormData(prev => ({ ...prev, location: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}` }));
           toast.success("Location coordinates detected!");
         }
@@ -143,7 +172,13 @@ export default function ReportWaste() {
 
     setIsSubmitting(true);
     try {
-      // Create waste report
+      // Upload image to storage
+      let imageUrl = null;
+      if (imageFile) {
+        imageUrl = await uploadImageToStorage(imageFile, 'before');
+      }
+
+      // Create waste report with image URL
       const { error: reportError } = await supabase
         .from("waste_reports")
         .insert({
@@ -153,6 +188,7 @@ export default function ReportWaste() {
           location: formData.location || "Not specified",
           points_earned: 50,
           status: "pending",
+          image_url: imageUrl,
         });
 
       if (reportError) throw reportError;
@@ -192,6 +228,7 @@ export default function ReportWaste() {
       toast.success("Report submitted successfully! +50 Eco-Points earned!");
       setStep(1);
       setImagePreview(null);
+      setImageFile(null);
       setAiResult(null);
       setFormData({ wasteType: "", severity: "", location: "", description: "" });
     } catch (error: any) {
@@ -262,6 +299,12 @@ export default function ReportWaste() {
                       alt="Waste preview"
                       className="w-full h-64 object-cover rounded-2xl"
                     />
+                    <div className="absolute top-2 right-2">
+                      <Badge className="bg-background/90 text-foreground">
+                        <ImageIcon className="h-3 w-3 mr-1" />
+                        Before Photo
+                      </Badge>
+                    </div>
                     {isAnalyzing && (
                       <div className="absolute inset-0 bg-background/80 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center">
                         <Loader2 className="h-10 w-10 text-primary animate-spin mb-4" />
@@ -286,6 +329,18 @@ export default function ReportWaste() {
                         </div>
                       </div>
                     )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="absolute top-2 left-2"
+                      onClick={() => {
+                        setImagePreview(null);
+                        setImageFile(null);
+                        setAiResult(null);
+                      }}
+                    >
+                      Change Photo
+                    </Button>
                   </div>
                 )}
 
@@ -423,8 +478,21 @@ export default function ReportWaste() {
               <CardContent>
                 <div className="space-y-4">
                   {imagePreview && (
-                    <img src={imagePreview} alt="Report" className="w-full h-48 object-cover rounded-xl" />
+                    <div className="relative">
+                      <img src={imagePreview} alt="Report" className="w-full h-48 object-cover rounded-xl" />
+                      <Badge className="absolute top-2 right-2 bg-background/90 text-foreground">
+                        <ImageIcon className="h-3 w-3 mr-1" />
+                        Before Photo
+                      </Badge>
+                    </div>
                   )}
+                  
+                  <div className="p-3 bg-blue-500/10 rounded-xl border border-blue-500/20">
+                    <p className="text-sm text-blue-600 dark:text-blue-400 flex items-center gap-2">
+                      <ImageIcon className="h-4 w-4" />
+                      Your image will be stored securely. An "After" photo can be added once the issue is resolved.
+                    </p>
+                  </div>
                   
                   <div className="grid grid-cols-2 gap-4 p-4 bg-muted/50 rounded-xl">
                     <div>
@@ -466,12 +534,12 @@ export default function ReportWaste() {
                     variant="eco" 
                     onClick={handleSubmit} 
                     className="flex-1"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isUploading}
                   >
-                    {isSubmitting ? (
+                    {isSubmitting || isUploading ? (
                       <>
                         <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Submitting...
+                        {isUploading ? "Uploading..." : "Submitting..."}
                       </>
                     ) : (
                       "Submit Report"
