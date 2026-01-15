@@ -5,14 +5,15 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { NotificationsProvider } from "@/hooks/useNotifications";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/hooks/useTheme";
 import Index from "./pages/Index";
-import Progress from "./pages/Progress";
 import ReportWaste from "./pages/ReportWaste";
 import Analytics from "./pages/Analytics";
 import AIClassifier from "./pages/AIClassifier";
 import SmartBin from "./pages/SmartBin";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,22 +23,24 @@ const App = () => (
     <TooltipProvider>
       <BrowserRouter>
         <AuthProvider>
-          <NotificationsProvider>
-            <Toaster />
-            <Sonner />
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/progress" element={<Progress />} />
-              <Route path="/report" element={<ReportWaste />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/classifier" element={<AIClassifier />} />
-              <Route path="/smart-bin" element={<SmartBin />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </NotificationsProvider>
+          <ThemeProvider>
+            <NotificationsProvider>
+              <Toaster />
+              <Sonner />
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/report" element={<ReportWaste />} />
+                <Route path="/analytics" element={<Analytics />} />
+                <Route path="/classifier" element={<AIClassifier />} />
+                <Route path="/smart-bin" element={<SmartBin />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                <Route path="/profile" element={<Profile />} />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </NotificationsProvider>
+          </ThemeProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
