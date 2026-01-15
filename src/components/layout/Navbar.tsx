@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Recycle, Menu, X, User, LayoutDashboard, BarChart3, Layers, Trash2, LogOut } from "lucide-react";
+import { Recycle, Menu, X, User, BarChart3, Layers, Trash2, LogOut, UserCircle } from "lucide-react";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -12,7 +12,6 @@ const navLinks = [
   { href: "/report", label: "Report Waste" },
   { href: "/smart-bin", label: "Smart Bin", icon: Trash2 },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/progress", label: "Progress", icon: LayoutDashboard },
 ];
 
 
@@ -61,10 +60,18 @@ export function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             <NotificationBell />
             {user ? (
-              <Button variant="ghost" size="sm" className="gap-2" onClick={handleLogout}>
-                <LogOut className="h-4 w-4" />
-                Logout
-              </Button>
+              <>
+                <Link to="/profile">
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <UserCircle className="h-4 w-4" />
+                    Profile
+                  </Button>
+                </Link>
+                <Button variant="ghost" size="sm" className="gap-2" onClick={handleLogout}>
+                  <LogOut className="h-4 w-4" />
+                  Logout
+                </Button>
+              </>
             ) : (
               <>
                 <Link to="/login">
@@ -108,12 +115,20 @@ export function Navbar() {
                   {link.label}
                 </Link>
               ))}
-              <div className="flex gap-2 mt-4 px-4">
+              <div className="flex flex-col gap-2 mt-4 px-4">
                 {user ? (
-                  <Button variant="outline" className="w-full gap-2" onClick={handleLogout}>
-                    <LogOut className="h-4 w-4" />
-                    Logout
-                  </Button>
+                  <>
+                    <Link to="/profile" className="w-full" onClick={() => setIsOpen(false)}>
+                      <Button variant="outline" className="w-full gap-2">
+                        <UserCircle className="h-4 w-4" />
+                        Profile
+                      </Button>
+                    </Link>
+                    <Button variant="outline" className="w-full gap-2" onClick={handleLogout}>
+                      <LogOut className="h-4 w-4" />
+                      Logout
+                    </Button>
+                  </>
                 ) : (
                   <>
                     <Link to="/login" className="flex-1">

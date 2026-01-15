@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          dark_mode: boolean | null
+          email: string | null
+          email_notifications: boolean | null
+          full_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+          weekly_digest: boolean | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          dark_mode?: boolean | null
+          email?: string | null
+          email_notifications?: boolean | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+          weekly_digest?: boolean | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          dark_mode?: boolean | null
+          email?: string | null
+          email_notifications?: boolean | null
+          full_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+          weekly_digest?: boolean | null
+        }
+        Relationships: []
+      }
       rewards: {
         Row: {
           created_at: string

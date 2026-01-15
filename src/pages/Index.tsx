@@ -4,6 +4,7 @@ import { HeroSection } from "@/components/home/HeroSection";
 import { ImpactCounter } from "@/components/home/ImpactCounter";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { WasteTypesSection } from "@/components/home/WasteTypesSection";
+import { ImpactSection } from "@/components/home/ImpactSection";
 
 const Index = () => {
   return (
@@ -12,6 +13,7 @@ const Index = () => {
       <main>
         <HeroSection />
         <ImpactCounter />
+        <ImpactSection />
         <HowItWorks />
         <WasteTypesSection />
       </main>
