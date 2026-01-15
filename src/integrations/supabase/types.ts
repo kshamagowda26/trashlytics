@@ -171,9 +171,11 @@ export type Database = {
       }
       waste_reports: {
         Row: {
+          after_image_url: string | null
           created_at: string
           description: string | null
           id: string
+          image_url: string | null
           location: string
           points_earned: number
           status: string
@@ -182,9 +184,11 @@ export type Database = {
           waste_type: string
         }
         Insert: {
+          after_image_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           location: string
           points_earned?: number
           status?: string
@@ -193,9 +197,11 @@ export type Database = {
           waste_type: string
         }
         Update: {
+          after_image_url?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          image_url?: string | null
           location?: string
           points_earned?: number
           status?: string
@@ -207,7 +213,19 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      leaderboard: {
+        Row: {
+          avatar_url: string | null
+          eco_points: number | null
+          full_name: string | null
+          level: number | null
+          rank: number | null
+          resolved_reports: number | null
+          total_reports: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
